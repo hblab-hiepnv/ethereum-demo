@@ -2,7 +2,6 @@ import React from "react";
 import { useWeb3React, Web3ReactProvider } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import { formatEther } from "@ethersproject/units";
-import { Contract } from "@ethersproject/contracts";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import useSWR from "swr";
 import ERC20Token from "./components/ERC20Token";
