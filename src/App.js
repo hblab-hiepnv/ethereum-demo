@@ -22,16 +22,18 @@ function App() {
 }
 
 function Balance() {
-  const account = "0x9c858484b4d35F0161d55a6D0dcE40204D459ef7";
-  const { chainId, activate, active, library } = useWeb3React();
+  const { chainId, activate, active, library, account } = useWeb3React();
   const [balance, setBalance] = React.useState();
+  const [to, setTo] = React.useState(undefined);
+  const [options, setOptions] = React.useState('1');
+  const [accountId , setAccountId] = React.useState(undefined);
+  const [balanceWithAccountId, setBalanceWithAccountId] = React.useState();
 
-  const [accountId, setAccountId] = React.useState(null);
 
   React.useEffect(() => {
-    if (!!accountId && !!library) {
+    if (!!account && !!library) {
       library
-        .getBalance(accountId)
+        .getBalance(account)
         .then((balance) => {
           setBalance(balance);
         })
@@ -45,16 +47,63 @@ function Balance() {
     }
   }, [account, library, chainId]);
 
-  const onClick = () => {
+  const connectMetaMask = () => {
     activate(injectedConnector);
   };
 
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setTo(value);
+  };
+
+  const smartTransaction = () => {
+    const request = {
+      method: "eth_sendTransaction",
+      params: [
+        {
+          from: account,
+          to: to,
+          value: "0x29a2241af62c0000",
+          gasPrice: "0x09184e72a000",
+          gas: "0x2710",
+        },
+      ],
+    };
+    library.provider.send(request, (inf) => {
+      console.log("inf", inf);
+    });
+  };
+
+  const changeOption = (e) => {
+    const value = e.target.value;
+    setOptions(value);
+  };
+
+  const handleChangeAccountId = (e) => {
+    const value = e.target.value;
+    setAccountId(value);
+  }
+
+  const getBalanceWithAccountId = () => {
+    library
+      .getBalance(accountId)
+      .then((balance) => {
+        setBalanceWithAccountId(balance);
+      })
+      .catch(() => {
+        setBalanceWithAccountId(null);
+      });
+
+    return () => {
+      setBalanceWithAccountId(undefined);
+    };
+  }
 
   return (
     <div>
-      <input type="text" onChange={(e) => setAccountId(e.target.value)}/>
       <div>ChainId: {chainId}</div>
-      <span>Balance</span>
+      <div>Account Id: {account}</div>
+      <span>My Balance</span>
       <span role="img" aria-label="gold">
         💰
       </span>
@@ -65,10 +114,63 @@ function Balance() {
           ? `Ξ ${parseFloat(formatEther(balance)).toPrecision(4)}`
           : ""}
       </span>
+      <hr/>
       {active ? (
-        <div>✅ </div>
+        <React.Fragment>
+          <div>
+            <input
+              type="radio"
+              id="infoTransaction"
+              name="infoTransaction"
+              value={1}
+              onChange={changeOption}
+              checked={options === "1"}
+            />
+            <label for="infoTransaction">Info Transaction</label>
+            <input
+              type="radio"
+              id="sendSmartContract"
+              name="sendSmartContract"
+              value={2}
+              onChange={changeOption}
+              checked={options === "2"}
+            />
+            <label for="sendSmartContract">Send ERC-20</label>
+          </div>
+          {options === "2" ? (
+            <>
+              The destination address: <input onChange={handleChange} />
+              <button
+                type="button"
+                onClick={smartTransaction}
+                style={{ marginLeft: 10 }}
+              >
+                Send
+              </button>
+            </>
+          ) : (
+            <>
+              AccoountId: <input onChange={handleChangeAccountId} />
+              <button
+                type="button"
+                onClick={getBalanceWithAccountId}
+                style={{ marginLeft: 10 }}
+              >
+                Send
+              </button>
+              <br />
+              {balanceWithAccountId === null
+                ? "Error"
+                : balanceWithAccountId
+                ? `Balance 💰Ξ : ${parseFloat(
+                    formatEther(balanceWithAccountId)
+                  ).toPrecision(4)}`
+                : ""}
+            </>
+          )}
+        </React.Fragment>
       ) : (
-        <button type="button" onClick={onClick}>
+        <button type="button" onClick={connectMetaMask}>
           Connect
         </button>
       )}
