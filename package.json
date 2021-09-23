@@ -11,12 +11,14 @@
     "@testing-library/user-event": "^12.1.10",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
+    "@web3-react/walletconnect-connector": "^6.2.4",
     "add": "^2.0.6",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "swr": "^1.0.1",
     "web-vitals": "^1.0.1",
+    "web3": "^1.5.3",
     "yarn": "^1.22.11"
   },
   "scripts": {
