@@ -12,7 +12,8 @@ const web3Methods =
 export default function NativeBalance() {
   const { library, account } = useWeb3React();
   const [toAccount, setToAccount] = React.useState(null);
-  const [transferAmount, setTransferAmount] = React.useState(null);
+  const [transferAmount, setTransferAmount] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const { data: balance } = useSWR(["getBalance", account, "latest"], {
     fetcher: web3Methods(library.eth),
@@ -20,17 +21,20 @@ export default function NativeBalance() {
 
   const transfer = () => {
     const amount = library.utils.toWei(transferAmount);
+
+    setIsLoading(true);
     library.eth
       .sendTransaction({
         to: toAccount,
         from: account,
         value: amount,
       })
-      .then(() => {
-        console.log("Success");
-        setToAccount(null);
+      .on("receipt", ({ transactionHash }) => {
+        setIsLoading(false);
+        setTransferAmount('');
+        console.log({ transactionHash });
       })
-      .catch((err) => console.error(err));
+      .on("error", (err) => console.error(err));
   };
 
   return (
@@ -51,12 +55,13 @@ export default function NativeBalance() {
       />
       <input
         type="text"
+        value={transferAmount}
         onChange={(e) => setTransferAmount(e.target.value)}
         placeholder="transfer amount: 0.1"
         style={{ marginLeft: "8px" }}
       />
       <button type="button" onClick={transfer} style={{ marginLeft: "8px" }}>
-        Send coins
+        {!isLoading ? "Send coins" : "Loading..."}
       </button>
     </div>
   );

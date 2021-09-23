@@ -12,7 +12,8 @@ export default function ERC20Token() {
   const [toAccount, setToAccount] = React.useState(null);
   const [contract, setContract] = React.useState(null);
   const [decimals, setDecimals] = React.useState(null);
-  const [transerAmount, setTransferAmount] = React.useState(0);
+  const [transferAmount, setTransferAmount] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
 
   useEffect(async () => {
     const contractIns = new library.eth.Contract(ERC20_ABI, USDT_CONTRACT_ADD);
@@ -40,16 +41,16 @@ export default function ERC20Token() {
   }, [contract]);
 
   const transfer = () => {
+    setIsLoading(true);
     contract.methods
-      .transfer(toAccount, `${transerAmount * Math.pow(10, decimals)}`)
+      .transfer(toAccount, `${transferAmount * Math.pow(10, decimals)}`)
       .send({ from: account })
-      .then((val) => {
-        setToAccount("");
+      .on("receipt", ({ transactionHash }) => {
+        setIsLoading(false);
+        setTransferAmount('');
+        console.log({ transactionHash });
       })
-      .catch((err) => {
-        console.error(err);
-        setToAccount("");
-      });
+      .on("error", (err) => console.error(err));
   };
 
   return (
@@ -65,12 +66,13 @@ export default function ERC20Token() {
       />
       <input
         type="text"
+        value={transferAmount}
         onChange={(e) => setTransferAmount(e.target.value)}
-        placeholder="transfer tokens value: 10"
+        placeholder="transfer amount: 10"
         style={{ marginLeft: "8px" }}
       />
       <button type="button" onClick={transfer} style={{ marginLeft: "8px" }}>
-        Send tokens
+        {!isLoading ? "Send tokens" : "Loading..."}
       </button>
     </React.Fragment>
   );

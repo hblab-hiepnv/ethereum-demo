@@ -1,6 +1,6 @@
 import { useWeb3React } from "@web3-react/core";
 import ERC20Token from "../components/ERC20Token";
-import NativeBalance from "../components/NativeBalance";
+import NativeCoin from "./NativeCoin";
 import Wallet from "../components/Wallet";
 
 export default function Root() {
@@ -16,7 +16,7 @@ export default function Root() {
       {!!library && (
         <>
           <hr />
-          <NativeBalance />
+          <NativeCoin />
           <hr />
           <ERC20Token />
           <hr />

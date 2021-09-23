@@ -34,7 +34,7 @@ export default function Wallet() {
         </>
       ) : (
         <>
-          <div>You are not connect to any Wallet</div>
+          <div>You are not connected to any Wallet</div>
           <button type="button" onClick={handleWalletInjectorActivate}>
             Connect Wallet
           </button>
